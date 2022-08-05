@@ -4,12 +4,12 @@ from selenium import webdriver
 from findElements import ElementFinder
 
 
-def handler(event):
+def handler(target, amountOfFollowers):
     def launch_browser():
         chromedriver_path = '/Users/calvin/Downloads/chromedriver'
         driver = webdriver.Chrome(executable_path=chromedriver_path)
 
-        driver.get("https://www.instagram.com/" + str(event["targetUser"]))
+        driver.get("https://www.instagram.com/accounts/login")
         return driver
 
     driver = launch_browser()
@@ -38,23 +38,31 @@ def handler(event):
         notNow.click()
 
     searchInput = Finder.find_element_by_xpath("/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/nav/div[2]/div/div/div[2]/input")
-    searchInput.send_keys("hihi")
+    searchInput.send_keys(target)
 
     firstUser = Finder.find_element_by_xpath("/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/nav/div[2]/div/div/div[2]/div[3]/div/div[2]/div/div[1]/a")
     firstUser.click()
 
-    followers = Finder.find_element_by_xpath("/html/body/div[1]/section/main/div/header/section/ul/li[2]/button")
+    followers = Finder.find_element_by_xpath("/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/main/div/header/section/ul/li[2]/a")
     followers.click()
 
 
-    while True:
-        pass
+    for i in range(1,amountOfFollowers):
+        
+        
+        scr1 = Finder.find_element_by_xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div/div[2]/ul/div/li[%s]' % i)
+        driver.execute_script("arguments[0].scrollIntoView();", scr1)
+        print(i)
+    
+        
+    followerslist = []
 
-
-
-
-    userNames = ["First", "Second", "Third","Fourth","Fifth","Sixth"]
-
+    for m in range(1,amountOfFollowers):
+        # /html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div/div[2]/ul/div/li[201]/div/div[1]/div[2]/div[1]
+        # /html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div/div[2]/ul/div/li[200]/div/div[1]/div[2]/div[1]/span/a/span
+        lite = Finder.find_element_by_xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div/div[2]/ul/div/li['+ str(m) + ']/div/div[1]/div[2]/div[1]/span/a/span')
+        followerslist.append(lite.text)
+    print(followerslist)
 
     # Create SQS client
     sqs = boto3.client('sqs')
@@ -62,7 +70,7 @@ def handler(event):
     queue_url = 'https://sqs.us-west-1.amazonaws.com/649237903886/SpartanIGBot'
 
     # Send message to SQS queue
-    for userName in userNames:
+    for userName in followerslist:
         response = sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=(
@@ -72,5 +80,4 @@ def handler(event):
 
 
 
-event={"targetUser": "meganeroberts"}
-handler(event)
+
