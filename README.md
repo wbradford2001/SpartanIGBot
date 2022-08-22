@@ -1,2 +1,2 @@
 # SpartanIGBot
-This is an instagram bot that allows users to enter a target account (an account similar to the one they want to increase the followers of) and it then likes the first 3 posts of that account. 
+This is an instagram bot that allows users to enter a target account (an account similar to the one they want to increase the followers of) and it then likes the first 3 posts of that account. To run the bot, simply call the handler(target, amountOfFollowers) function from retrieveUsernames.py and then run pollQueue.py. Handler gathers the specified amount of followers from the target account and pushes to an AWS queue. pollQueue.py polls the queue and likes the first 3 posts of each account. 
